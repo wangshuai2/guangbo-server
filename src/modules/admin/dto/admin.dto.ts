@@ -28,7 +28,11 @@ export class CreateAdminDto {
   @IsString()
   nickname?: string;
 
-  @ApiProperty({ description: '角色', example: 'admin', enum: ['admin', 'super_admin'] })
+  @ApiProperty({
+    description: '角色',
+    example: 'admin',
+    enum: ['admin', 'super_admin'],
+  })
   @IsString()
   role?: string;
 }

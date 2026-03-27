@@ -1,7 +1,28 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseIntPipe } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  ParseIntPipe,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { RegionsService } from './regions.service';
-import { CreateRegionDto, UpdateRegionDto, ToggleRegionDto, RegionType } from './dto/region.dto';
+import {
+  CreateRegionDto,
+  UpdateRegionDto,
+  ToggleRegionDto,
+  RegionType,
+} from './dto/region.dto';
 
 @ApiTags('regions')
 @ApiBearerAuth()
@@ -74,7 +95,10 @@ export class RegionsController {
   @ApiResponse({ status: 200, description: '更新成功' })
   @ApiResponse({ status: 404, description: '地区不存在' })
   @ApiResponse({ status: 409, description: '行政区划代码已存在或父级设置无效' })
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateRegionDto: UpdateRegionDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateRegionDto: UpdateRegionDto,
+  ) {
     return this.regionsService.update(id, updateRegionDto);
   }
 
@@ -90,7 +114,10 @@ export class RegionsController {
   @ApiOperation({ summary: '切换地区状态（管理后台）' })
   @ApiResponse({ status: 200, description: '切换成功' })
   @ApiResponse({ status: 404, description: '地区不存在' })
-  toggle(@Param('id', ParseIntPipe) id: number, @Body() toggleDto: ToggleRegionDto) {
+  toggle(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() toggleDto: ToggleRegionDto,
+  ) {
     return this.regionsService.toggle(id, toggleDto.isActive);
   }
 

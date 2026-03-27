@@ -5,6 +5,7 @@ import databaseConfig from './common/config/database.config';
 import jwtConfig from './common/config/jwt.config';
 import redisConfig from './common/config/redis.config';
 import ossConfig from './common/config/oss.config';
+import smsConfig from './common/config/sms.config';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { RedisModule } from './common/redis/redis.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -18,7 +19,14 @@ import { AdminModule } from './modules/admin/admin.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, jwtConfig, redisConfig, ossConfig],
+      load: [
+        appConfig,
+        databaseConfig,
+        jwtConfig,
+        redisConfig,
+        ossConfig,
+        smsConfig,
+      ],
     }),
     PrismaModule,
     RedisModule,

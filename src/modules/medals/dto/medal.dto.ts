@@ -1,5 +1,13 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { IsString, IsInt, IsBoolean, IsObject, IsOptional, IsEnum, Min } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsBoolean,
+  IsObject,
+  IsOptional,
+  IsEnum,
+  Min,
+} from 'class-validator';
 
 // 勋章类型枚举
 export enum MedalType {
@@ -14,7 +22,11 @@ export class CreateMedalDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ description: '勋章类型', enum: MedalType, example: MedalType.SHARE })
+  @ApiProperty({
+    description: '勋章类型',
+    enum: MedalType,
+    example: MedalType.SHARE,
+  })
   @IsEnum(MedalType)
   type: MedalType;
 
@@ -23,14 +35,17 @@ export class CreateMedalDto {
   @Min(1)
   level: number;
 
-  @ApiProperty({ 
-    description: '解锁条件 (JSON)', 
+  @ApiProperty({
+    description: '解锁条件 (JSON)',
     example: { type: 'share_count', value: 10 },
   })
   @IsObject()
   unlockCondition: Record<string, any>;
 
-  @ApiPropertyOptional({ description: '勋章图标 URL', example: 'https://example.com/medal.png' })
+  @ApiPropertyOptional({
+    description: '勋章图标 URL',
+    example: 'https://example.com/medal.png',
+  })
   @IsOptional()
   @IsString()
   iconUrl?: string;

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../../common/utils/prisma.service';
 import { CreateMedalDto, UpdateMedalDto } from './dto/medal.dto';
 
@@ -9,7 +13,7 @@ export class MedalsService {
   // 获取勋章列表
   async findAll(isActive?: boolean) {
     const where = isActive !== undefined ? { isActive } : {};
-    
+
     return this.prisma.medal.findMany({
       where,
       orderBy: [{ sortOrder: 'asc' }, { level: 'asc' }],
@@ -40,7 +44,9 @@ export class MedalsService {
     });
 
     if (existing) {
-      throw new ConflictException(`勋章类型 ${createMedalDto.type} 等级 ${createMedalDto.level} 已存在`);
+      throw new ConflictException(
+        `勋章类型 ${createMedalDto.type} 等级 ${createMedalDto.level} 已存在`,
+      );
     }
 
     return this.prisma.medal.create({
@@ -66,7 +72,9 @@ export class MedalsService {
       });
 
       if (existing) {
-        throw new ConflictException(`勋章类型 ${updateMedalDto.type} 等级 ${updateMedalDto.level} 已存在`);
+        throw new ConflictException(
+          `勋章类型 ${updateMedalDto.type} 等级 ${updateMedalDto.level} 已存在`,
+        );
       }
     }
 

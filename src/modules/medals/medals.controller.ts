@@ -1,7 +1,27 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseIntPipe } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  ParseIntPipe,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { MedalsService } from './medals.service';
-import { CreateMedalDto, UpdateMedalDto, ToggleMedalDto } from './dto/medal.dto';
+import {
+  CreateMedalDto,
+  UpdateMedalDto,
+  ToggleMedalDto,
+} from './dto/medal.dto';
 
 @ApiTags('medals')
 @ApiBearerAuth()
@@ -41,7 +61,10 @@ export class MedalsController {
   @ApiOperation({ summary: '更新勋章（管理后台）' })
   @ApiResponse({ status: 200, description: '更新成功' })
   @ApiResponse({ status: 404, description: '勋章不存在' })
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateMedalDto: UpdateMedalDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateMedalDto: UpdateMedalDto,
+  ) {
     return this.medalsService.update(id, updateMedalDto);
   }
 
@@ -57,7 +80,10 @@ export class MedalsController {
   @ApiOperation({ summary: '切换勋章状态（管理后台）' })
   @ApiResponse({ status: 200, description: '切换成功' })
   @ApiResponse({ status: 404, description: '勋章不存在' })
-  toggle(@Param('id', ParseIntPipe) id: number, @Body() toggleDto: ToggleMedalDto) {
+  toggle(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() toggleDto: ToggleMedalDto,
+  ) {
     return this.medalsService.toggle(id, toggleDto.isActive);
   }
 }

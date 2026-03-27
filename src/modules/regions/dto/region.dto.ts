@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { IsString, IsInt, IsBoolean, IsOptional, IsEnum, Min } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsBoolean,
+  IsOptional,
+  IsEnum,
+  Min,
+} from 'class-validator';
 
 // 地区类型枚举
 export enum RegionType {
@@ -14,7 +21,11 @@ export class CreateRegionDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ description: '地区类型', enum: RegionType, example: RegionType.PROVINCE })
+  @ApiProperty({
+    description: '地区类型',
+    enum: RegionType,
+    example: RegionType.PROVINCE,
+  })
   @IsEnum(RegionType)
   type: RegionType;
 

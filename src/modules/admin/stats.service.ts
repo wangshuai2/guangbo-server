@@ -7,13 +7,14 @@ export class StatsService {
 
   // 概览数据
   async getOverview() {
-    const [userCount, museumCount, footprintCount, shareCount, medalCount] = await Promise.all([
-      this.prisma.user.count(),
-      this.prisma.museum.count(),
-      this.prisma.footprint.count(),
-      this.prisma.share.count(),
-      this.prisma.medal.count(),
-    ]);
+    const [userCount, museumCount, footprintCount, shareCount, medalCount] =
+      await Promise.all([
+        this.prisma.user.count(),
+        this.prisma.museum.count(),
+        this.prisma.footprint.count(),
+        this.prisma.share.count(),
+        this.prisma.medal.count(),
+      ]);
 
     // 今日新增用户
     const today = new Date();

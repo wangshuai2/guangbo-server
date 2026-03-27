@@ -41,14 +41,11 @@ export class OssController {
       fileFilter: (req, file, callback) => {
         // 只允许图片类型
         if (!file.mimetype.startsWith('image/')) {
-          return callback(
-            new BadRequestException('只允许上传图片文件'),
-            false
-          );
+          return callback(new BadRequestException('只允许上传图片文件'), false);
         }
         callback(null, true);
       },
-    })
+    }),
   )
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '上传单张图片', description: '上传单张图片到 OSS' })
@@ -64,7 +61,7 @@ export class OssController {
   @ApiResponse({ status: 201, description: '上传成功' })
   async uploadImage(
     @UploadedFile() file: Express.Multer.File,
-    @Body('prefix') prefix?: string
+    @Body('prefix') prefix?: string,
   ): Promise<UploadResult> {
     if (!file) {
       throw new BadRequestException('请选择要上传的图片');
@@ -84,17 +81,17 @@ export class OssController {
       },
       fileFilter: (req, file, callback) => {
         if (!file.mimetype.startsWith('image/')) {
-          return callback(
-            new BadRequestException('只允许上传图片文件'),
-            false
-          );
+          return callback(new BadRequestException('只允许上传图片文件'), false);
         }
         callback(null, true);
       },
-    })
+    }),
   )
   @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: '批量上传图片', description: '最多同时上传 9 张图片' })
+  @ApiOperation({
+    summary: '批量上传图片',
+    description: '最多同时上传 9 张图片',
+  })
   @ApiBody({
     schema: {
       type: 'object',
@@ -111,7 +108,7 @@ export class OssController {
   @ApiResponse({ status: 201, description: '上传成功' })
   async uploadImages(
     @UploadedFiles() files: Express.Multer.File[],
-    @Body('prefix') prefix?: string
+    @Body('prefix') prefix?: string,
   ): Promise<UploadResult[]> {
     if (!files || files.length === 0) {
       throw new BadRequestException('请选择要上传的图片');
@@ -131,14 +128,11 @@ export class OssController {
       },
       fileFilter: (req, file, callback) => {
         if (!file.mimetype.startsWith('image/')) {
-          return callback(
-            new BadRequestException('只允许上传图片文件'),
-            false
-          );
+          return callback(new BadRequestException('只允许上传图片文件'), false);
         }
         callback(null, true);
       },
-    })
+    }),
   )
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '上传头像', description: '上传用户头像，最大 2MB' })
@@ -153,7 +147,7 @@ export class OssController {
   })
   @ApiResponse({ status: 201, description: '上传成功' })
   async uploadAvatar(
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<UploadResult> {
     if (!file) {
       throw new BadRequestException('请选择要上传的头像');
@@ -179,11 +173,14 @@ export class OssController {
    * 获取文件临时访问 URL
    */
   @Get('url/:key')
-  @ApiOperation({ summary: '获取文件 URL', description: '获取文件临时访问 URL' })
+  @ApiOperation({
+    summary: '获取文件 URL',
+    description: '获取文件临时访问 URL',
+  })
   @ApiResponse({ status: 200, description: '获取成功' })
   async getFileUrl(
     @Param('key') key: string,
-    @Query('expires') expires?: number
+    @Query('expires') expires?: number,
   ): Promise<{ url: string }> {
     const decodedKey = decodeURIComponent(key);
     const url = await this.ossService.getFileUrl(decodedKey, expires || 3600);

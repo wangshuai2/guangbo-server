@@ -1,6 +1,14 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../../common/utils/prisma.service';
-import { CreateRegionDto, UpdateRegionDto, RegionTreeDto } from './dto/region.dto';
+import {
+  CreateRegionDto,
+  UpdateRegionDto,
+  RegionTreeDto,
+} from './dto/region.dto';
 
 @Injectable()
 export class RegionsService {
@@ -110,7 +118,9 @@ export class RegionsService {
         where: { id: createRegionDto.parentId },
       });
       if (!parent) {
-        throw new NotFoundException(`父级地区 #${createRegionDto.parentId} 不存在`);
+        throw new NotFoundException(
+          `父级地区 #${createRegionDto.parentId} 不存在`,
+        );
       }
     }
 
@@ -120,7 +130,9 @@ export class RegionsService {
         where: { code: createRegionDto.code },
       });
       if (existing) {
-        throw new ConflictException(`行政区划代码 ${createRegionDto.code} 已存在`);
+        throw new ConflictException(
+          `行政区划代码 ${createRegionDto.code} 已存在`,
+        );
       }
     }
 
@@ -142,7 +154,9 @@ export class RegionsService {
         where: { id: updateRegionDto.parentId },
       });
       if (!parent) {
-        throw new NotFoundException(`父级地区 #${updateRegionDto.parentId} 不存在`);
+        throw new NotFoundException(
+          `父级地区 #${updateRegionDto.parentId} 不存在`,
+        );
       }
     }
 
@@ -152,7 +166,9 @@ export class RegionsService {
         where: { code: updateRegionDto.code, NOT: { id } },
       });
       if (existing) {
-        throw new ConflictException(`行政区划代码 ${updateRegionDto.code} 已存在`);
+        throw new ConflictException(
+          `行政区划代码 ${updateRegionDto.code} 已存在`,
+        );
       }
     }
 

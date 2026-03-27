@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
@@ -9,14 +14,16 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private isConnected = false;
 
   // 内存缓存（Redis 不可用时的降级方案）
-  private memoryCache: Map<string, { value: string; expireAt: number }> = new Map();
+  private memoryCache: Map<string, { value: string; expireAt: number }> =
+    new Map();
 
   constructor(private configService: ConfigService) {}
 
   async onModuleInit() {
     const host = this.configService.get<string>('redis.host') || 'localhost';
     const port = this.configService.get<number>('redis.port') || 6379;
-    const password = this.configService.get<string>('redis.password') || undefined;
+    const password =
+      this.configService.get<string>('redis.password') || undefined;
 
     try {
       this.client = new Redis({
@@ -94,13 +101,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       // 从内存缓存读取
       const item = this.memoryCache.get(key);
       if (!item) return null;
-      
+
       // 检查是否过期
       if (Date.now() > item.expireAt) {
         this.memoryCache.delete(key);
         return null;
       }
-      
+
       return item.value;
     }
   }
@@ -126,13 +133,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     } else {
       const item = this.memoryCache.get(key);
       if (!item) return false;
-      
+
       // 检查是否过期
       if (Date.now() > item.expireAt) {
         this.memoryCache.delete(key);
         return false;
       }
-      
+
       return true;
     }
   }
@@ -146,7 +153,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     } else {
       const item = this.memoryCache.get(key);
       if (!item || item.expireAt === Infinity) return -1;
-      
+
       const remaining = Math.floor((item.expireAt - Date.now()) / 1000);
       return Math.max(0, remaining);
     }

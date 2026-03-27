@@ -1,6 +1,11 @@
-import { Injectable, Logger, OnModuleInit, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  BadRequestException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import OSS = require('ali-oss');
+import OSS from 'ali-oss';
 import { UploadResult, UploadOptions, OssConfig } from './oss.interface';
 
 /**
@@ -15,7 +20,8 @@ export class OssService implements OnModuleInit {
   constructor(private configService: ConfigService) {
     this.config = {
       accessKeyId: this.configService.get<string>('OSS_ACCESS_KEY_ID') || '',
-      accessKeySecret: this.configService.get<string>('OSS_ACCESS_KEY_SECRET') || '',
+      accessKeySecret:
+        this.configService.get<string>('OSS_ACCESS_KEY_SECRET') || '',
       region: this.configService.get<string>('OSS_REGION') || 'oss-cn-beijing',
       bucket: this.configService.get<string>('OSS_BUCKET') || '',
       endpoint: this.configService.get<string>('OSS_ENDPOINT'),
@@ -30,7 +36,7 @@ export class OssService implements OnModuleInit {
     };
   }
 
-  async onModuleInit() {
+  onModuleInit() {
     try {
       // 创建 OSS 客户端 - 使用阿里云标准域名进行 API 操作
       this.client = new OSS({
@@ -42,7 +48,9 @@ export class OssService implements OnModuleInit {
       });
 
       this.logger.log('阿里云 OSS 客户端初始化成功');
-      this.logger.log(`Bucket: ${this.config.bucket}, Region: ${this.config.region}`);
+      this.logger.log(
+        `Bucket: ${this.config.bucket}, Region: ${this.config.region}`,
+      );
       if (this.config.endpoint) {
         this.logger.log(`CDN 域名: ${this.config.endpoint}`);
       }
@@ -59,7 +67,7 @@ export class OssService implements OnModuleInit {
    */
   async uploadFile(
     file: Express.Multer.File,
-    options: UploadOptions = {}
+    options: UploadOptions = {},
   ): Promise<UploadResult> {
     // 验证文件
     this.validateFile(file);
@@ -69,7 +77,7 @@ export class OssService implements OnModuleInit {
 
     try {
       // 上传到 OSS
-      const result = await this.client.put(key, file.buffer, {
+      await this.client.put(key, file.buffer, {
         headers: {
           'Content-Type': file.mimetype,
         },
@@ -87,8 +95,9 @@ export class OssService implements OnModuleInit {
         size: file.size,
         mimeType: file.mimetype,
       };
-    } catch (error) {
-      this.logger.error(`文件上传失败: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`文件上传失败: ${err.message}`, err.stack);
       throw new BadRequestException('文件上传失败，请稍后重试');
     }
   }
@@ -100,7 +109,7 @@ export class OssService implements OnModuleInit {
    */
   async uploadFiles(
     files: Express.Multer.File[],
-    options: UploadOptions = {}
+    options: UploadOptions = {},
   ): Promise<UploadResult[]> {
     const results: UploadResult[] = [];
 
@@ -120,8 +129,9 @@ export class OssService implements OnModuleInit {
     try {
       await this.client.delete(key);
       this.logger.log(`文件删除成功: ${key}`);
-    } catch (error) {
-      this.logger.error(`文件删除失败: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`文件删除失败: ${err.message}`, err.stack);
       throw new BadRequestException('文件删除失败');
     }
   }
@@ -134,8 +144,9 @@ export class OssService implements OnModuleInit {
     try {
       await this.client.deleteMulti(keys);
       this.logger.log(`批量删除文件成功: ${keys.length} 个`);
-    } catch (error) {
-      this.logger.error(`批量删除文件失败: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`批量删除文件失败: ${err.message}`, err.stack);
       throw new BadRequestException('批量删除文件失败');
     }
   }
@@ -145,12 +156,13 @@ export class OssService implements OnModuleInit {
    * @param key 文件 key
    * @param expires 过期时间（秒），默认 1 小时
    */
-  async getFileUrl(key: string, expires: number = 3600): Promise<string> {
+  getFileUrl(key: string, expires: number = 3600): string {
     try {
       const url = this.client.signatureUrl(key, { expires });
       return url;
-    } catch (error) {
-      this.logger.error(`获取文件 URL 失败: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`获取文件 URL 失败: ${err.message}`);
       throw new BadRequestException('获取文件 URL 失败');
     }
   }
@@ -175,15 +187,18 @@ export class OssService implements OnModuleInit {
     // 检查文件大小
     if (file.size > this.config.maxSize!) {
       throw new BadRequestException(
-        `文件大小超过限制（最大 ${Math.round(this.config.maxSize! / 1024 / 1024)}MB）`
+        `文件大小超过限制（最大 ${Math.round(this.config.maxSize! / 1024 / 1024)}MB）`,
       );
     }
 
     // 检查文件类型
-    if (this.config.allowedMimeTypes && this.config.allowedMimeTypes.length > 0) {
+    if (
+      this.config.allowedMimeTypes &&
+      this.config.allowedMimeTypes.length > 0
+    ) {
       if (!this.config.allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException(
-          `不支持的文件类型：${file.mimetype}，仅支持：${this.config.allowedMimeTypes.join(', ')}`
+          `不支持的文件类型：${file.mimetype}，仅支持：${this.config.allowedMimeTypes.join(', ')}`,
         );
       }
     }
@@ -195,7 +210,7 @@ export class OssService implements OnModuleInit {
   private generateKey(
     file: Express.Multer.File,
     prefix?: string,
-    customFilename?: string
+    customFilename?: string,
   ): string {
     const date = new Date();
     const year = date.getFullYear();
@@ -206,11 +221,19 @@ export class OssService implements OnModuleInit {
     const ext = this.getExtension(file.originalname);
 
     // 生成文件名
-    const filename = customFilename || `${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const filename =
+      customFilename ||
+      `${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 
     // 组装 key：prefix/YYYY/MM/DD/filename.ext
-    const keyParts = [prefix || 'uploads', year.toString(), month, day, `${filename}${ext}`];
-    
+    const keyParts = [
+      prefix || 'uploads',
+      year.toString(),
+      month,
+      day,
+      `${filename}${ext}`,
+    ];
+
     return keyParts.filter(Boolean).join('/');
   }
 
@@ -269,10 +292,11 @@ export class OssService implements OnModuleInit {
         healthy: true,
         message: 'OSS 服务运行正常',
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as Error;
       return {
         healthy: false,
-        message: `OSS 服务异常: ${error.message}`,
+        message: `OSS 服务异常: ${err.message}`,
       };
     }
   }
