@@ -14,6 +14,8 @@ import { RegionsModule } from './modules/regions/regions.module';
 import { OssModule } from './modules/oss/oss.module';
 import { SmsModule } from './modules/sms/sms.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { PosterModule } from './modules/poster/poster.module';
+import { SharesModule } from './modules/shares/shares.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { AdminModule } from './modules/admin/admin.module';
     OssModule,
     SmsModule,
     AdminModule,
+    PosterModule,
+    SharesModule,
   ],
 })
 export class AppModule {}
