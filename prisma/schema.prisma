@@ -1,0 +1,246 @@
+// Prisma Schema for 逛博 APP
+// 数据库：SQLite (测试环境)
+// 更新：可配置化勋章 + 地区系统
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ==================== 用户相关 ====================
+
+model User {
+  id        Int      @id @default(autoincrement())
+  phone     String   @unique
+  password  String
+  nickname  String?
+  avatar    String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关联
+  footprints   Footprint[]
+  shares       Share[]
+  comments     Comment[]
+  likes        Like[]
+  collections  Collection[]
+  userMedals   UserMedal[]
+  stats        UserStats?
+
+  @@index([phone])
+  @@map("users")
+}
+
+// ==================== 地区系统（可配置化）====================
+
+model Region {
+  id        Int      @id @default(autoincrement())
+  name      String                     // 地区名称
+  type      String                     // province/city/district
+  parentId  Int?                      @map("parent_id")
+  parent    Region?  @relation("RegionHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Region[] @relation("RegionHierarchy")
+  code      String?  @unique           // 行政区划代码
+  isActive  Boolean  @default(true)   @map("is_active")
+  sortOrder Int      @default(0)      @map("sort_order")
+  createdAt DateTime @default(now())  @map("created_at")
+  updatedAt DateTime @updatedAt       @map("updated_at")
+
+  // 关联博物馆（作为省份/城市/区县）
+  provinceMuseums  Museum[] @relation("ProvinceMuseums")
+  cityMuseums      Museum[] @relation("CityMuseums")
+  districtMuseums  Museum[] @relation("DistrictMuseums")
+
+  @@index([type])
+  @@index([parentId])
+  @@index([isActive])
+  @@map("regions")
+}
+
+// ==================== 博物馆相关 ====================
+
+model Museum {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  address     String?
+  longitude   Float?                     // 经度
+  latitude    Float?                     // 纬度
+  coverImage  String?                   @map("cover_image")
+  provinceId  Int?                      @map("province_id")
+  province    Region?  @relation("ProvinceMuseums", fields: [provinceId], references: [id], onDelete: SetNull)
+  cityId      Int?                      @map("city_id")
+  city        Region?  @relation("CityMuseums", fields: [cityId], references: [id], onDelete: SetNull)
+  districtId  Int?                      @map("district_id")
+  district    Region?  @relation("DistrictMuseums", fields: [districtId], references: [id], onDelete: SetNull)
+  isActive    Boolean  @default(true)   @map("is_active")
+  createdAt   DateTime @default(now())  @map("created_at")
+  updatedAt   DateTime @updatedAt       @map("updated_at")
+
+  // 关联
+  footprints  Footprint[]
+  shares      Share[]
+  collections Collection[]
+
+  @@index([provinceId])
+  @@index([cityId])
+  @@index([districtId])
+  @@index([isActive])
+  @@map("museums")
+}
+
+// ==================== 足迹系统 ====================
+
+model Footprint {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  museumId  Int      @map("museum_id")
+  museum    Museum   @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, museumId]) // 同一用户同一博物馆只能打卡一次
+  @@index([userId])
+  @@index([museumId])
+  @@map("footprints")
+}
+
+// ==================== UGC 内容系统 ====================
+
+model Share {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  museumId  Int      @map("museum_id")
+  museum    Museum   @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  content   String
+  images    String?                     // JSON 数组存储图片 URL
+  isActive  Boolean  @default(true)    @map("is_active")
+  createdAt DateTime @default(now())   @map("created_at")
+  updatedAt DateTime @updatedAt        @map("updated_at")
+
+  // 关联
+  comments Comment[]
+  likes    Like[]
+
+  @@index([userId])
+  @@index([museumId])
+  @@index([isActive])
+  @@map("shares")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shareId   Int      @map("share_id")
+  share     Share    @relation(fields: [shareId], references: [id], onDelete: Cascade)
+  content   String
+  isActive  Boolean  @default(true)    @map("is_active")
+  createdAt DateTime @default(now())   @map("created_at")
+
+  @@index([shareId])
+  @@index([isActive])
+  @@map("comments")
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shareId   Int      @map("share_id")
+  share     Share    @relation(fields: [shareId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, shareId]) // 同一用户同一分享只能点赞一次
+  @@index([shareId])
+  @@map("likes")
+}
+
+// ==================== 勋章系统（可配置化）====================
+
+model Medal {
+  id             Int      @id @default(autoincrement())
+  name           String                       // 勋章名称
+  type           String                       // share/like/footprint
+  level          Int                          // 等级
+  unlockCondition String   @map("unlock_condition") // 解锁条件 JSON
+  iconUrl        String?                     @map("icon_url")
+  description    String?
+  isActive       Boolean  @default(true)      @map("is_active")
+  sortOrder      Int      @default(0)         @map("sort_order")
+  createdAt      DateTime @default(now())     @map("created_at")
+  updatedAt      DateTime @updatedAt          @map("updated_at")
+
+  // 关联
+  userMedals UserMedal[]
+
+  @@index([type])
+  @@index([isActive])
+  @@unique([type, level])
+  @@map("medals")
+}
+
+model UserMedal {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medalId    Int      @map("medal_id")
+  medal      Medal    @relation(fields: [medalId], references: [id], onDelete: Cascade)
+  unlockedAt DateTime @default(now()) @map("unlocked_at")
+
+  @@unique([userId, medalId])
+  @@index([userId])
+  @@index([medalId])
+  @@map("user_medals")
+}
+
+// ==================== 收藏系统 ====================
+
+model Collection {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  museumId  Int      @map("museum_id")
+  museum    Museum   @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, museumId])
+  @@index([userId])
+  @@index([museumId])
+  @@map("collections")
+}
+
+// ==================== 用户统计（用于勋章计算）====================
+
+model UserStats {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique @map("user_id")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shareCount     Int      @default(0) @map("share_count")
+  likeCount      Int      @default(0) @map("like_count")
+  footprintCount Int      @default(0) @map("footprint_count")
+  provinceCount  Int      @default(0) @map("province_count") // 打卡过的省份数
+  cityCount      Int      @default(0) @map("city_count")     // 打卡过的城市数
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("user_stats")
+}
+// ==================== 管理员 ====================
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  nickname  String?
+  role      String   @default("admin") // admin/super_admin
+  isActive  Boolean  @default(true)    @map("is_active")
+  createdAt DateTime @default(now())   @map("created_at")
+  updatedAt DateTime @updatedAt        @map("updated_at")
+
+  @@map("admins")
+}

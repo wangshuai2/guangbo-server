@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: guangbo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user_J3eJRh
+      POSTGRES_PASSWORD: password_zCrJkc
+      POSTGRES_DB: museum_test
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_J3eJRh -d museum_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: guangbo-redis
+    restart: unless-stopped
+    command: redis-server --requirepass redis_t34eNa
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redis_t34eNa", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
