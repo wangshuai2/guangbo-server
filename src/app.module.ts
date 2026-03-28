@@ -16,6 +16,7 @@ import { SmsModule } from './modules/sms/sms.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { PosterModule } from './modules/poster/poster.module';
 import { SharesModule } from './modules/shares/shares.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { SharesModule } from './modules/shares/shares.module';
     AdminModule,
     PosterModule,
     SharesModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
