@@ -18,13 +18,18 @@ export class SharesService {
    */
   async recordShare(userId: number, data: RecordShareDto) {
     // 创建分享记录
+    const shareData: any = {
+      userId,
+      content: data.content || '',
+      images: data.images ? JSON.stringify(data.images) : null,
+    };
+    
+    if (data.museumId) {
+      shareData.museumId = data.museumId;
+    }
+
     const share = await this.prisma.share.create({
-      data: {
-        userId,
-        museumId: data.museumId || null,
-        content: data.content || '',
-        images: data.images ? JSON.stringify(data.images) : null,
-      },
+      data: shareData,
     });
 
     // 更新用户分享统计

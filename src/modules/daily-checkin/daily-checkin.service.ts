@@ -72,17 +72,12 @@ export class DailyCheckinService {
       },
     });
 
-    // 5. 更新用户经验值
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        exp: { increment: totalExp },
-      },
-    });
+    // 5. 更新用户统计（签到不增加经验值，只记录签到）
+    // 经验值通过其他方式获取
 
     return {
       success: true,
-      message: `签到成功！连续签到 ${streak} 天，获得 ${totalExp} 经验值`,
+      message: `签到成功！连续签到 ${streak} 天，获得 ${totalExp} 积分`,
       data: {
         checkinDate: checkin.checkinDate,
         streak,

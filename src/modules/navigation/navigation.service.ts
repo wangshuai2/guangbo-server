@@ -60,7 +60,7 @@ export class NavigationService {
       museum.latitude,
       museum.longitude,
       museum.name,
-      museum.address,
+      museum.address || '',
     );
 
     return {
