@@ -18,6 +18,7 @@ import { PosterModule } from './modules/poster/poster.module';
 import { SharesModule } from './modules/shares/shares.module';
 import { UsersModule } from './modules/users/users.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
+import { DailyCheckinModule } from './modules/daily-checkin/daily-checkin.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
     SharesModule,
     UsersModule,
     ReviewsModule,
+    DailyCheckinModule,
   ],
 })
 export class AppModule {}

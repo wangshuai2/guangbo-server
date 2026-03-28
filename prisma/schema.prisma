@@ -33,6 +33,7 @@ model User {
   ratings      Rating[]
   reviews      Review[]
   reviewLikes  ReviewLike[]
+  dailyCheckins DailyCheckin[]
 
   @@index([phone])
   @@map("users")
@@ -235,6 +236,23 @@ model UserStats {
 
   @@map("user_stats")
 }
+// ==================== 每日签到奖励系统 ====================
+
+model DailyCheckin {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkinDate DateTime @map("checkin_date") // 签到日期
+  streak    Int                          // 当天连续签到天数
+  reward    Int      @default(0)         @map("reward") // 获得的经验值奖励
+  createdAt DateTime @default(now())   @map("created_at")
+
+  @@unique([userId, checkinDate]) // 同一用户同一天只能签到一次
+  @@index([userId])
+  @@index([checkinDate])
+  @@map("daily_checkins")
+}
+
 // ==================== 博物馆评分与评论系统 ====================
 
 model Rating {
