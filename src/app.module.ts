@@ -17,6 +17,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { PosterModule } from './modules/poster/poster.module';
 import { SharesModule } from './modules/shares/shares.module';
 import { UsersModule } from './modules/users/users.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { UsersModule } from './modules/users/users.module';
     PosterModule,
     SharesModule,
     UsersModule,
+    ReviewsModule,
   ],
 })
 export class AppModule {}

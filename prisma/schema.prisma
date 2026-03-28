@@ -30,6 +30,9 @@ model User {
   collections  Collection[]
   userMedals   UserMedal[]
   stats        UserStats?
+  ratings      Rating[]
+  reviews      Review[]
+  reviewLikes  ReviewLike[]
 
   @@index([phone])
   @@map("users")
@@ -85,6 +88,8 @@ model Museum {
   footprints  Footprint[]
   shares      Share[]
   collections Collection[]
+  ratings     Rating[]
+  reviews     Review[]
 
   @@index([provinceId])
   @@index([cityId])
@@ -230,6 +235,61 @@ model UserStats {
 
   @@map("user_stats")
 }
+// ==================== 博物馆评分与评论系统 ====================
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  museumId  Int      @map("museum_id")
+  museum    Museum   @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  score     Int                          // 评分 1-5
+  createdAt DateTime @default(now())   @map("created_at")
+  updatedAt DateTime @updatedAt        @map("updated_at")
+
+  @@unique([userId, museumId]) // 同一用户同一博物馆只能评分一次
+  @@index([userId])
+  @@index([museumId])
+  @@index([score])
+  @@map("ratings")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  museumId  Int      @map("museum_id")
+  museum    Museum   @relation(fields: [museumId], references: [id], onDelete: Cascade)
+  content   String                         // 评论内容
+  images    String?                       @map("images") // JSON 数组存储图片 URL
+  rating    Int?                          // 关联评分（可选）
+  isActive  Boolean  @default(true)      @map("is_active")
+  createdAt DateTime @default(now())     @map("created_at")
+  updatedAt DateTime @updatedAt          @map("updated_at")
+
+  // 关联
+  reviewLikes ReviewLike[]
+
+  @@index([userId])
+  @@index([museumId])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("reviews")
+}
+
+model ReviewLike {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewId  Int      @map("review_id")
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())   @map("created_at")
+
+  @@unique([userId, reviewId]) // 同一用户同一评论只能点赞一次
+  @@index([reviewId])
+  @@map("review_likes")
+}
+
 // ==================== 管理员 ====================
 
 model Admin {
