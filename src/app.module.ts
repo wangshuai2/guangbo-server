@@ -19,6 +19,7 @@ import { SharesModule } from './modules/shares/shares.module';
 import { UsersModule } from './modules/users/users.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { DailyCheckinModule } from './modules/daily-checkin/daily-checkin.module';
+import { NavigationModule } from './modules/navigation/navigation.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { DailyCheckinModule } from './modules/daily-checkin/daily-checkin.module
     UsersModule,
     ReviewsModule,
     DailyCheckinModule,
+    NavigationModule,
   ],
 })
 export class AppModule {}
