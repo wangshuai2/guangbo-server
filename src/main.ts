@@ -12,8 +12,24 @@ async function bootstrap() {
   const apiPrefix = configService.get<string>('app.apiPrefix') || '/api/v1';
   const port = configService.get<number>('app.port') || 3000;
 
-  // 设置全局前缀
-  app.setGlobalPrefix(apiPrefix);
+  // 设置全局前缀，排除 admin 路由（admin 使用独立前缀 /api/admin）
+  app.setGlobalPrefix(apiPrefix, {
+    exclude: [
+      'admin/auth/login',
+      'admin/auth/init',
+      'admin/auth/profile',
+      'admin/users',
+      'admin/users/:id',
+      'admin/users/:id/ban',
+      'admin/museums',
+      'admin/museums/:id',
+      'admin/museums/:id/toggle',
+      'admin/stats/overview',
+      'admin/stats/footprints',
+      'admin/stats/hot-museums',
+      'admin/stats/medals',
+    ],
+  });
 
   // 全局验证管道
   app.useGlobalPipes(

@@ -26,7 +26,7 @@ import { AdminLoginDto, CreateAdminDto } from './dto/admin.dto';
 import { AdminGuard } from './guards/admin.guard';
 
 @ApiTags('admin')
-@Controller('admin')
+@Controller('api/admin')
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,
